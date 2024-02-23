@@ -1,5 +1,7 @@
 # SWQA: Agile testing workshop
 
+See [TDD](./TDD.md) for the TDD workshop.
+
 ## Questions
 
 1. For each one of the following classes, pick an example of a test where the pattern "Arrange-Act-Assert" or "AAA with state" are applied and identify clearly the three parts of the pattern.
