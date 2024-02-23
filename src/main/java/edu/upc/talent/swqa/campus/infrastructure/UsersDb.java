@@ -6,12 +6,12 @@ public final class UsersDb {
   public static final String usersTableDml =
         """
         create table if not exists users (
-            id serial primary key,
+            id text primary key,
             name text not null,
             surname text not null,
             email text not null,
             role text not null,
-            group_id int not null,
+            group_id text not null,
             active boolean not null default true,
             foreign key (group_id) references groups(id)
         )
@@ -20,7 +20,7 @@ public final class UsersDb {
   public static final String groupsTableDml =
         """
         create table if not exists groups (
-            id serial primary key,
+            id text primary key,
             name text not null
         )
         """;

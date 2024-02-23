@@ -6,6 +6,8 @@ import edu.upc.talent.swqa.campus.domain.User;
 import edu.upc.talent.swqa.campus.domain.UsersRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -37,7 +39,7 @@ public final class CampusAppMockedTest {
   @Test
   public void testCreateGroup(){
     app.createGroup("bigdata");
-    verify(usersRepository).createGroup("bigdata");
+    verify(usersRepository).createGroup(any(), eq("bigdata"));
     verifyNoMoreInteractions(usersRepository);
     verifyNoMoreInteractions(emailSender);
   }

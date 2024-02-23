@@ -4,6 +4,7 @@ import java.util.List;
 
 public interface UsersRepository {
   void createUser(
+        final String id,
         final String name,
         final String surname,
         final String email,
@@ -11,7 +12,7 @@ public interface UsersRepository {
         final String groupName
   );
 
-  void createGroup(final String name);
+  void createGroup(String id, final String name);
 
   List<User> getUsersByGroupAndRole(final String groupName, final String onlyRole);
 

@@ -1,5 +1,7 @@
 package edu.upc.talent.swqa.campus.domain;
 
+import java.util.UUID;
+
 public final class CampusApp {
 
   private final UsersRepository usersRepository;
@@ -10,18 +12,22 @@ public final class CampusApp {
     this.emailSender = emailSender;
   }
 
-  public void createGroup(final String name) {
-    usersRepository.createGroup(name);
+  public String createGroup(final String name) {
+    final var id = UUID.randomUUID().toString();
+    usersRepository.createGroup(id, name);
+    return id;
   }
 
-  public void createUser(
+  public String createUser(
         final String name,
         final String surname,
         final String email,
         final String role,
         final String groupName
   ) {
-    usersRepository.createUser(name, surname, email, role, groupName);
+    final var id = UUID.randomUUID().toString();
+    usersRepository.createUser(id, name, surname, email, role, groupName);
+    return id;
   }
 
   public void sendMailToGroupRole(
@@ -38,4 +44,5 @@ public final class CampusApp {
     final var users = usersRepository.getUsersByGroup(groupName);
     users.forEach(u -> emailSender.sendEmail(u.email(), subject, body));
   }
+
 }

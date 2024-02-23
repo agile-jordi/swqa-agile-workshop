@@ -19,6 +19,7 @@ public final class PostgreSqlUsersRepository implements UsersRepository {
 
   @Override
   public void createUser(
+        final String id,
         final String name,
         final String surname,
         final String email,
@@ -27,9 +28,9 @@ public final class PostgreSqlUsersRepository implements UsersRepository {
   ) {
     try {
       db.update(
-            "insert into users (name, surname, email, role, group_id) " +
-            "values (?, ?, ?, ?, (select id from groups where name = ?))",
-            p(name), p(surname), p(email), p(role), p(groupName)
+            "insert into users (id, name, surname, email, role, group_id) " +
+            "values (?, ?, ?, ?, ?, (select id from groups where name = ?))",
+            p(id), p(name), p(surname), p(email), p(role), p(groupName)
       );
     } catch (final RuntimeException e) {
       final var cause = e.getCause();
@@ -42,8 +43,8 @@ public final class PostgreSqlUsersRepository implements UsersRepository {
   }
 
   @Override
-  public void createGroup(final String name) {
-    db.update("insert into groups (name) values (?)", p(name));
+  public void createGroup(final String id, final String name) {
+    db.update("insert into groups (id, name) values (?, ?)", p(id), p(name));
   }
 
   private final String selectUsersByGroupName = """

@@ -1,9 +1,9 @@
 package edu.upc.talent.swqa.campus.test;
 
 import edu.upc.talent.swqa.campus.domain.CampusApp;
-import edu.upc.talent.swqa.campus.infrastructure.ConsoleEmailSender;
 import edu.upc.talent.swqa.campus.infrastructure.PostgreSqlUsersRepository;
 import edu.upc.talent.swqa.campus.infrastructure.UsersDb;
+import edu.upc.talent.swqa.campus.test.utils.ConsoleEmailSender;
 import edu.upc.talent.swqa.test.utils.DatabaseBackedTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,10 +17,10 @@ public final class CampusAppEndToEndTest extends DatabaseBackedTest {
     db.update(UsersDb.groupsTableDml);
     db.update(UsersDb.usersTableDml);
     final var repo = new PostgreSqlUsersRepository(db);
-    repo.createGroup("swqa");
-    repo.createUser("John", "Doe", "john.doe@example.com", "student", "swqa");
-    repo.createUser("Jane", "Doe", "jane.doe@example.com", "student", "swqa");
-    repo.createUser("Mariah", "Harris", "mariah.hairam@example.com", "teacher", "swqa");
+    repo.createGroup("0","swqa");
+    repo.createUser("1","John", "Doe", "john.doe@example.com", "student", "swqa");
+    repo.createUser("2","Jane", "Doe", "jane.doe@example.com", "student", "swqa");
+    repo.createUser("3","Mariah", "Harris", "mariah.hairam@example.com", "teacher", "swqa");
     this.app = new CampusApp(repo, new ConsoleEmailSender());
   }
 

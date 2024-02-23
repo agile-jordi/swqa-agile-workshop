@@ -6,15 +6,15 @@ import edu.upc.talent.swqa.campus.test.utils.UsersRepositoryState;
 
 public final class InMemoryUsersRepositoryTest implements UsersRepositoryTest {
 
-  private final InMemoryUsersRepository repository = new InMemoryUsersRepository(new UsersRepositoryState());
+  private UsersRepositoryState state;
 
-  @Override
-  public UsersRepository getRepository() {
-    return repository;
+  @Override public UsersRepository getRepository(final UsersRepositoryState initialState) {
+    this.state = initialState.copy();
+    return new InMemoryUsersRepository(state);
   }
 
   @Override
-  public UsersRepositoryState getUsersRepositoryState() {
-    return repository.state();
+  public UsersRepositoryState getFinalState() {
+    return state;
   }
 }

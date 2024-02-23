@@ -9,20 +9,19 @@ public record InMemoryUsersRepository(UsersRepositoryState state) implements Use
 
   @Override
   public void createUser(
+        final String id,
         final String name,
         final String surname,
         final String email,
         final String role,
         final String groupName
   ) {
-    final var id = state.users().size() + 1;
-    final var user = new User("" + id, name, surname, email, role, groupName);
+    final var user = new User(id, name, surname, email, role, groupName);
     state.users().add(user);
   }
 
   @Override
-  public void createGroup(final String name) {
-    final var id = state.groups().size() + 1;
+  public void createGroup(final String id, final String name) {
     state.groups().add(new Group(id, name));
   }
 
