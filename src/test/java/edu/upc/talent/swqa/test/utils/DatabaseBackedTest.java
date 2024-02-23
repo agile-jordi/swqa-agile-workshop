@@ -4,11 +4,8 @@ import edu.upc.talent.swqa.jdbc.Database;
 import static edu.upc.talent.swqa.jdbc.HikariCP.getDataSource;
 import static edu.upc.talent.swqa.test.utils.ConsoleUtils.printAlignedTable;
 import static edu.upc.talent.swqa.util.Utils.join;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,18 +31,9 @@ public abstract class DatabaseBackedTest {
 
   @AfterEach
   public final void afterEach() throws Exception {
+    printDbContents();
     if (this.db != null) this.db.close();
   }
-
-  @Rule
-  public final TestWatcher watchman = new TestWatcher() {
-    @Override
-    protected void failed(final Throwable e, final Description description) {
-      System.out.println("Database contents: ");
-      printDbContents();
-    }
-
-  };
 
 
   private void printDbContents() {
@@ -70,7 +58,7 @@ public abstract class DatabaseBackedTest {
       }
       return row;
     });
-    System.out.println(tableName + ":");
+    System.out.println(("-- " + tableName + " " + "-".repeat(75)).substring(0,80) + "\n");
     printAlignedTable(join(List.of(columns), rows));
     System.out.println();
   }
