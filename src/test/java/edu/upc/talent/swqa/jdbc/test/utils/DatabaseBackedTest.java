@@ -4,6 +4,8 @@ import edu.upc.talent.swqa.jdbc.Database;
 import static edu.upc.talent.swqa.jdbc.HikariCP.getDataSource;
 import static edu.upc.talent.swqa.jdbc.test.utils.ConsoleUtils.printAlignedTable;
 import static edu.upc.talent.swqa.util.Utils.join;
+import static edu.upc.talent.swqa.util.Utils.listOf;
+import static edu.upc.talent.swqa.util.Utils.stringRepeat;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -16,8 +18,8 @@ public abstract class DatabaseBackedTest {
 
   @BeforeEach
   public final void setUpDatabase() {
-    final var databaseName = this.getClass().getSimpleName().toLowerCase();
-    try (final var db = new Database(getDataSource("jdbc:postgresql:///", "postgres", "postgres"))) {
+    final String databaseName = this.getClass().getSimpleName().toLowerCase();
+    try (final Database db = new Database(getDataSource("jdbc:postgresql:///", "postgres", "postgres"))) {
       db.withConnection((conn) -> {
         conn.update("DROP DATABASE IF EXISTS " + databaseName);
         conn.update("CREATE DATABASE " + databaseName);
@@ -37,7 +39,7 @@ public abstract class DatabaseBackedTest {
 
 
   private void printDbContents() {
-    final var tables = db.select(
+    final List<String> tables = db.select(
           "SELECT table_name, table_schema FROM information_schema.tables where table_schema = 'public'",
           (rs) -> rs.getString(1)
     );
@@ -45,21 +47,21 @@ public abstract class DatabaseBackedTest {
   }
 
   private void printTableContents(final String tableName) {
-    final var columns = db.select(
+    final List<String> columns = db.select(
           "SELECT column_name FROM information_schema.columns WHERE table_name = '" + tableName + "'",
           (rs) ->
                 rs.getString(1)
     );
-    final var columnNames = String.join(", ", columns);
-    final var rows = db.select("SELECT " + columnNames + " FROM " + tableName, (rs) -> {
+    final String columnNames = String.join(", ", columns);
+    final List<List<String>> rows = db.select("SELECT " + columnNames + " FROM " + tableName, (rs) -> {
       final List<String> row = new ArrayList<>();
       for (int i = 1; i <= columns.size(); i++) {
         row.add(rs.getString(i));
       }
       return row;
     });
-    System.out.println(("-- " + tableName + " " + "-".repeat(75)).substring(0,80) + "\n");
-    printAlignedTable(join(List.of(columns), rows));
+    System.out.println(("-- " + tableName + " " + stringRepeat("-", 75)).substring(0, 80) + "\n");
+    printAlignedTable(join(listOf(columns), rows));
     System.out.println();
   }
 

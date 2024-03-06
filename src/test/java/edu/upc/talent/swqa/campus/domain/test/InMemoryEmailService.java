@@ -11,11 +11,11 @@ public class InMemoryEmailService implements EmailService {
   private final Set<SentEmail> sentEmails = new HashSet<>();
 
   @Override public void sendEmail(final User to, final String subject, final String body) {
-    sentEmails.add(new SentEmail(to.email(), subject, body));
+    sentEmails.add(new SentEmail(to.email, subject, body));
   }
 
   public Set<SentEmail> getSentEmails() {
-    return Set.copyOf(sentEmails);
+    return sentEmails;
   }
 
 }

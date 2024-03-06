@@ -3,6 +3,8 @@ package edu.upc.talent.swqa.jdbc;
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,10 +18,10 @@ public final class ConnectionScope {
   }
 
   public <A> List<A> select(final String sql, final RowReader<A> reader, final Param... params) {
-    try (final var stmt = connection.prepareStatement(sql)) {
+    try (final PreparedStatement stmt = connection.prepareStatement(sql)) {
       for (int i = 0; i < params.length; i++) params[i].set(stmt, i + 1);
-      try (final var rs = stmt.executeQuery()) {
-        final var res = new ArrayList<A>();
+      try (final ResultSet rs = stmt.executeQuery()) {
+        final List<A> res = new ArrayList<>();
         while (rs.next()) {
           res.add(reader.apply(new ResultSetView(rs)));
         }
@@ -31,7 +33,7 @@ public final class ConnectionScope {
   }
 
   public int update(final String sql, final Param... params) {
-    try (final var stmt = connection.prepareStatement(sql)) {
+    try (final PreparedStatement stmt = connection.prepareStatement(sql)) {
       for (int i = 0; i < params.length; i++) params[i].set(stmt, i + 1);
       return stmt.executeUpdate();
     } catch (final SQLException ex) {
@@ -40,10 +42,10 @@ public final class ConnectionScope {
   }
 
   public <K> K insertAndGetKey(final String sql, final RowReader<K> keyReader, final Param... params) {
-    try (final var stmt = connection.prepareStatement(sql, RETURN_GENERATED_KEYS)) {
+    try (final PreparedStatement stmt = connection.prepareStatement(sql, RETURN_GENERATED_KEYS)) {
       for (int i = 0; i < params.length; i++) params[i].set(stmt, i + 1);
       stmt.executeUpdate();
-      try (final var keys = stmt.getGeneratedKeys()) {
+      try (final ResultSet keys = stmt.getGeneratedKeys()) {
         keys.next();
         return keyReader.apply(new ResultSetView(keys));
       }
@@ -53,11 +55,11 @@ public final class ConnectionScope {
   }
 
   public <A> A selectOne(final String sql, final RowReader<A> reader, final Param... params) {
-    try (final var stmt = connection.prepareStatement(sql)) {
+    try (final PreparedStatement stmt = connection.prepareStatement(sql)) {
       for (int i = 0; i < params.length; i++) params[i].set(stmt, i + 1);
-      try (final var rs = stmt.executeQuery()) {
+      try (final ResultSet rs = stmt.executeQuery()) {
         if (!rs.next()) throw new SQLException("No rows returned");
-        final var result = reader.apply(new ResultSetView(rs));
+        final A result = reader.apply(new ResultSetView(rs));
         if (rs.next()) throw new SQLException("More than one row returned");
         return result;
       }

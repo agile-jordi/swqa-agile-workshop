@@ -6,6 +6,7 @@ import static edu.upc.talent.swqa.util.Utils.minus;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,7 +16,7 @@ public final class Asserts {
   private Asserts() {}
 
   public static void assertEquals(final Object expected, final Object actual) {
-    final var diffs = diff(expected, actual);
+    final Diff diffs = diff(expected, actual);
     if (diffs != null) {
       throw new AssertionError("Actual value did not match the expected value:" + diffs.toString(true, 2));
     }
@@ -48,14 +49,14 @@ public final class Asserts {
     if (expected.equals(actual)) {
       return null;
     } else {
-      final var diffs = new HashMap<String, Diff>();
-      for (final var key : expected.keySet()) {
-        final var diff = diff(expected.get(key), actual.get(key));
+      final Map<String, Diff> diffs = new HashMap<>();
+      for (final Object key : expected.keySet()) {
+        final Diff diff = diff(expected.get(key), actual.get(key));
         if (diff != null) {
           diffs.put(key.toString(), diff);
         }
       }
-      for (final var key : actual.keySet()) {
+      for (final Object key : actual.keySet()) {
         if (!expected.containsKey(key)) {
           diffs.put(key.toString(), new Diff.AtomicDiff(null, actual.get(key)));
         }
@@ -76,12 +77,12 @@ public final class Asserts {
     if (expected.equals(actual)) {
       return null;
     } else {
-      var i = 0;
-      final var itExpected = expected.iterator();
-      final var itActual = actual.iterator();
-      final var diffs = new HashMap<Integer, Diff>();
+      int i = 0;
+      final Iterator<Object> itExpected = expected.iterator();
+      final Iterator<Object> itActual = actual.iterator();
+      final Map<Integer, Diff> diffs = new HashMap<>();
       while (itExpected.hasNext() && itActual.hasNext()) {
-        final var diff = diff(itExpected.next(), itActual.next());
+        final Diff diff = diff(itExpected.next(), itActual.next());
         if (diff != null) {
           diffs.put(i, diff);
         }

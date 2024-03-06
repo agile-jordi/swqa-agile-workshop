@@ -5,6 +5,8 @@ import edu.upc.talent.swqa.campus.infrastructure.SmtpEmailService;
 import edu.upc.talent.swqa.jdbc.Database;
 import static edu.upc.talent.swqa.jdbc.HikariCP.getDataSource;
 
+import java.util.List;
+
 public final class CampusApp {
 
   private final UsersRepository usersRepository;
@@ -16,7 +18,7 @@ public final class CampusApp {
   }
 
   public void sendMailToGroup(final String groupName, final String subject, final String body) {
-    final var users = usersRepository.getUsersByGroup(groupName);
+    final List<User> users = usersRepository.getUsersByGroup(groupName);
     users.forEach(u -> emailService.sendEmail(u, subject, body));
   }
 
@@ -24,12 +26,12 @@ public final class CampusApp {
   public void sendBirthdayEmails() {
     usersRepository.getUsersInBirthday().forEach(u ->
                                                        System.out.println("--------\n" +
-                                                                          "to: " + u.email() + "\n" +
+                                                                          "to: " + u.email + "\n" +
                                                                           "subject: Happy Campus Birthday!\n" +
                                                                           "body:\n" + "Happy campus birthday " +
-                                                                          u.name() + " " + u.surname() + "!\n" +
+                                                                          u.name + " " + u.surname + "!\n" +
                                                                           "You have been with us since " +
-                                                                          u.createdAt() + "\n" +
+                                                                          u.createdAt + "\n" +
                                                                           "--------\n")
     );
   }
@@ -50,12 +52,12 @@ public final class CampusApp {
   }
 
   public static CampusApp buildProductionApp() {
-    final var dbHost = System.getenv("DATABASE_HOST");
-    final var dbUser = System.getenv("DATABASE_USER");
-    final var dbPassword = System.getenv("DATABASE_PASSWORD");
-    final var db = new Database(getDataSource("jdbc:postgresql://" + dbHost + "/", dbUser, dbPassword));
-    final var emailService = new SmtpEmailService();
-    final var usersRepository = new PostgresQlUsersRepository(db);
+    final String dbHost = System.getenv("DATABASE_HOST");
+    final String dbUser = System.getenv("DATABASE_USER");
+    final String dbPassword = System.getenv("DATABASE_PASSWORD");
+    final Database db = new Database(getDataSource("jdbc:postgresql://" + dbHost + "/", dbUser, dbPassword));
+    final EmailService emailService = new SmtpEmailService();
+    final UsersRepository usersRepository = new PostgresQlUsersRepository(db);
     return new CampusApp(usersRepository, emailService);
   }
 

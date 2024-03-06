@@ -8,7 +8,7 @@ public final class HikariCP {
   private HikariCP() {}
 
   public static HikariDataSource getDataSource(final String jdbcUrl, final String username, final String password) {
-    final var config = new HikariConfig();
+    final HikariConfig config = new HikariConfig();
     config.setJdbcUrl(jdbcUrl);
     config.setUsername(username);
     config.setPassword(password);

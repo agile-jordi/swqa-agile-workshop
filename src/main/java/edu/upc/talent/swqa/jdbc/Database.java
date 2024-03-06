@@ -35,7 +35,7 @@ public final class Database implements AutoCloseable {
   public <A> A inTransaction(final Function<ConnectionScope, A> f) {
     try (final Connection conn = dataSource.getConnection()) {
       conn.setAutoCommit(false);
-      final var res = f.apply(new ConnectionScope(conn));
+      final A res = f.apply(new ConnectionScope(conn));
       conn.commit();
       return res;
     } catch (final SQLException e) {

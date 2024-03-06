@@ -18,10 +18,9 @@ public class PostgresQlUsersRepository implements UsersRepository {
 
   public List<User> getUsersByGroup(final String groupName) {
     return db.select(
-          """
-          select u.id, u.name, u.surname, u.email, u.role
-          from users u join groups g on u.group_id = g.id
-          where u.active and g.name = ?""",
+          "select u.id, u.name, u.surname, u.email, u.role " +
+          "from users u join groups g on u.group_id = g.id " +
+          "where u.active and g.name = ?",
           (rs) -> new User(
                 rs.getString(1),
                 rs.getString(2),

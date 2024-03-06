@@ -7,6 +7,7 @@ import edu.upc.talent.swqa.campus.infrastructure.UsersDb;
 import edu.upc.talent.swqa.jdbc.Database;
 import static edu.upc.talent.swqa.jdbc.HikariCP.getDataSource;
 import static edu.upc.talent.swqa.test.utils.Asserts.assertEquals;
+import static edu.upc.talent.swqa.util.Utils.setOf;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
@@ -36,8 +37,8 @@ public class CampusAppTest {
 
     // Assert
     // Consultar emails contra un servidor POP / IMAP
-    final var sentEmails = emailService.getSentEmails();
-    final var expected = Set.of(
+    final Set<SentEmail> sentEmails = emailService.getSentEmails();
+    final Set<SentEmail> expected = setOf(
           new SentEmail("john.doe@example.com", "Hi!", "How are you doing?"),
           new SentEmail("mariah.renfield@example.com", "Hi!", "How are you doing?")
     );
