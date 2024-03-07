@@ -6,35 +6,44 @@ import static edu.upc.talent.swqa.jdbc.test.utils.ConsoleUtils.printAlignedTable
 import static edu.upc.talent.swqa.util.Utils.join;
 import static edu.upc.talent.swqa.util.Utils.listOf;
 import static edu.upc.talent.swqa.util.Utils.stringRepeat;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class DatabaseBackedTest {
 
-  protected Database db;
+  static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
+        "postgres:15-alpine"
+  );
 
-  @BeforeEach
-  public final void setUpDatabase() {
-    final String databaseName = this.getClass().getSimpleName().toLowerCase();
-    try (final Database db = new Database(getDataSource("jdbc:postgresql:///", "postgres", "postgres"))) {
-      db.withConnection((conn) -> {
-        conn.update("DROP DATABASE IF EXISTS " + databaseName);
-        conn.update("CREATE DATABASE " + databaseName);
-      });
-    } catch (final Exception e) {
-      throw new RuntimeException(e);
-    }
+  protected static Database db;
 
-    this.db = new Database(getDataSource("jdbc:postgresql:///" + databaseName, "postgres", "postgres"));
+
+  @BeforeAll
+  static void beforeAll() {
+    postgres.start();
+    db = new Database(getDataSource(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword()));
+
   }
 
+  @AfterAll
+  static void afterAll() {
+    try {
+      db.close();
+    } catch (final Exception e) {
+      e.printStackTrace();
+    }
+    postgres.stop();
+  }
+
+
   @AfterEach
-  public final void afterEach() throws Exception {
+  public final void afterEach() {
     printDbContents();
-    if (this.db != null) this.db.close();
   }
 
 
