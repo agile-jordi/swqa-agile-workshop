@@ -147,8 +147,8 @@ public interface Diff {
 
     @Override
     public String toString(final boolean newLine, final int indent) {
-      final String sExpected = expected.toString();
-      final String sActual = actual.toString();
+      final String sExpected = Objects.toString(expected);
+      final String sActual = Objects.toString(actual);
       if (newLine || sExpected.length() + sActual.length() > 100) {
         final String spaces = stringRepeat(" ",indent);
         return "\n" + spaces + "expected: " + sExpected + "\n" + spaces + "actual: " + sActual;
