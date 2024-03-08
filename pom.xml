@@ -74,7 +74,6 @@
                 <configuration>
                     <parallel>all</parallel>
                     <threadCount>10</threadCount>
-                    <perCoreThreadCount>true</perCoreThreadCount>
                 </configuration>
             </plugin>
         </plugins>

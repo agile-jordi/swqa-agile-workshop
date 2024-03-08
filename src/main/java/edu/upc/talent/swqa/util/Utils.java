@@ -1,5 +1,7 @@
 package edu.upc.talent.swqa.util;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -85,6 +87,10 @@ public final class Utils {
       result.put(value.getKey(), value.getValue());
     }
     return result;
+  }
+
+  public static Instant now() {
+    return Instant.now().truncatedTo(ChronoUnit.MILLIS);
   }
 }
 

@@ -1,6 +1,6 @@
 package edu.upc.talent.swqa.campus.domain;
 
-import edu.upc.talent.swqa.campus.infrastructure.PostgresQlUsersRepository;
+import edu.upc.talent.swqa.campus.infrastructure.PostgreSqlUsersRepository;
 import edu.upc.talent.swqa.campus.infrastructure.SmtpEmailService;
 import edu.upc.talent.swqa.jdbc.Database;
 import static edu.upc.talent.swqa.jdbc.HikariCP.getDataSource;
@@ -57,8 +57,13 @@ public final class CampusApp {
     final String dbPassword = System.getenv("DATABASE_PASSWORD");
     final Database db = new Database(getDataSource("jdbc:postgresql://" + dbHost + "/", dbUser, dbPassword));
     final EmailService emailService = new SmtpEmailService();
-    final UsersRepository usersRepository = new PostgresQlUsersRepository(db);
+    final UsersRepository usersRepository = new PostgreSqlUsersRepository(db);
     return new CampusApp(usersRepository, emailService);
   }
 
+  public void sendMailToGroupRole(final String groupName, final String roleName, final String subject, final String body) {
+    final List<User> users = usersRepository.getUsersByGroup(groupName);
+    users.stream().filter(u -> u.role.equals(roleName))
+          .forEach(u -> emailService.sendEmail(u, subject, body));
+  }
 }

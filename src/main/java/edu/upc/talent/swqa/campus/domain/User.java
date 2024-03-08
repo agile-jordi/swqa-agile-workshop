@@ -1,5 +1,8 @@
 package edu.upc.talent.swqa.campus.domain;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Objects;
 
 public final class User {
@@ -10,15 +13,31 @@ public final class User {
   public final String role;
   public final String groupName;
 
+  public final Instant createdAt;
 
-  public User(final String id, final String name, final String surname, final String email, final String role, final String groupName) {
+
+  public User(
+        final String id,
+        final String name,
+        final String surname,
+        final String email,
+        final String role,
+        final String groupName,
+        final Instant createdAt
+  ) {
     this.id = id;
     this.name = name;
     this.surname = surname;
     this.email = email;
     this.role = role;
     this.groupName = groupName;
+    this.createdAt = createdAt;
   }
+
+  public LocalDate createdDate() {
+    return LocalDate.from(createdAt);
+  }
+
 
   @Override public boolean equals(final Object o) {
     if (this == o) return true;

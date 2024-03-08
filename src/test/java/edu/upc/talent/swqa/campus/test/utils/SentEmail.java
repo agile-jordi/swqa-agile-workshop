@@ -1,4 +1,4 @@
-package edu.upc.talent.swqa.campus.domain.test;
+package edu.upc.talent.swqa.campus.test.utils;
 
 import java.util.Objects;
 

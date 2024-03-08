@@ -1,48 +1,76 @@
 package edu.upc.talent.swqa.campus.domain.test;
 
 import edu.upc.talent.swqa.campus.domain.CampusApp;
-import edu.upc.talent.swqa.campus.domain.UsersRepository;
-import edu.upc.talent.swqa.campus.infrastructure.PostgresQlUsersRepository;
-import edu.upc.talent.swqa.campus.infrastructure.UsersDb;
-import edu.upc.talent.swqa.jdbc.Database;
-import static edu.upc.talent.swqa.jdbc.HikariCP.getDataSource;
-import edu.upc.talent.swqa.jdbc.test.utils.DatabaseBackedTest;
+import edu.upc.talent.swqa.campus.test.utils.CampusAppState;
+import edu.upc.talent.swqa.campus.test.utils.Group;
+import edu.upc.talent.swqa.campus.test.utils.InMemoryUsersRepository;
+import edu.upc.talent.swqa.campus.test.utils.SentEmail;
+import static edu.upc.talent.swqa.campus.test.utils.TestFixtures.defaultInitialState;
+import edu.upc.talent.swqa.campus.test.utils.UsersRepositoryState;
 import static edu.upc.talent.swqa.test.utils.Asserts.assertEquals;
 import static edu.upc.talent.swqa.util.Utils.setOf;
+import static edu.upc.talent.swqa.util.Utils.union;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.shaded.org.bouncycastle.asn1.dvcs.Data;
 
-import java.util.Set;
+public final class CampusAppTest {
 
-public class CampusAppTest extends DatabaseBackedTest {
+  private CampusAppState state;
 
-  final InMemoryEmailService emailService = new InMemoryEmailService();
-  final UsersRepository usersRepository = new PostgresQlUsersRepository(db);
-  final CampusApp app = new CampusApp(usersRepository, emailService);
+  private CampusApp getApp(final CampusAppState initialState) {
+    state = initialState.copy();
+    return new CampusApp(
+          new InMemoryUsersRepository(state.usersRepositoryState),
+          new InMemoryEmailService(state.sentEmails)
+    );
+  }
+
+  private CampusAppState getFinalState() {
+    return state;
+  }
 
   @Test
-  public void testSendMailToGroup() {
-    // Arrange
-    db.update(UsersDb.groupsTableDml);
-    db.update(UsersDb.usersTableDml);
-    db.update("delete from users");
-    db.update("delete from groups");
-    app.createGroup("g1", "swqa");
-    app.createGroup("g2", "electronics");
-    app.createUser("1", "John", "Doe", "john.doe@example.com", "student", "swqa");
-    app.createUser("2", "Jane", "Doe", "jane.doe@example.com", "student", "electronics");
-    app.createUser("3", "Mariah", "Renfield", "mariah.renfield@example.com", "student", "swqa");
-
-    // Act
-    app.sendMailToGroup("swqa", "Hi!", "How are you doing?");
-
-    // Assert
-    // Consultar emails contra un servidor POP / IMAP
-    final Set<SentEmail> sentEmails = emailService.getSentEmails();
-    final Set<SentEmail> expected = setOf(
-          new SentEmail("john.doe@example.com", "Hi!", "How are you doing?"),
-          new SentEmail("mariah.renfield@example.com", "Hi!", "How are you doing?")
+  public void testCreateGroup() {
+    final CampusApp app = getApp(defaultInitialState);
+    final Group newGroup = new Group("0", "bigdata");
+    app.createGroup(newGroup.id, newGroup.name);
+    final CampusAppState expectedFinalState = new CampusAppState(
+          new UsersRepositoryState(
+                defaultInitialState.usersRepositoryState.users,
+                union(defaultInitialState.usersRepositoryState.groups, setOf(newGroup))
+          ),
+          setOf()
     );
-    assertEquals(expected, sentEmails);
+    assertEquals(expectedFinalState, getFinalState());
   }
+
+  @Test
+  public void testSendEmailToGroup() {
+    final CampusApp app = getApp(defaultInitialState);
+    final String subject = "New campus!";
+    final String body = "Hello everyone! We just created a new virtual campus!";
+    app.sendMailToGroup("swqa", subject, body);
+    final CampusAppState expectedFinalState = new CampusAppState(
+          defaultInitialState.usersRepositoryState,
+          setOf(
+                new SentEmail("john.doe@example.com", subject, body),
+                new SentEmail("jane.doe@example.com", subject, body),
+                new SentEmail("mariah.hairam@example.com", subject, body)
+          )
+    );
+    assertEquals(expectedFinalState, getFinalState());
+  }
+
+  @Test
+  public void testSendEmailToGroupRole() {
+    final CampusApp app = getApp(defaultInitialState);
+    final String subject = "Hey! Teacher!";
+    final String body = "Let them students alone!!";
+    app.sendMailToGroupRole("swqa", "teacher", subject, body);
+    final CampusAppState expectedFinalState = new CampusAppState(
+          defaultInitialState.usersRepositoryState,
+          setOf(new SentEmail("mariah.hairam@example.com", subject, body))
+    );
+    assertEquals(expectedFinalState, getFinalState());
+  }
+
 }

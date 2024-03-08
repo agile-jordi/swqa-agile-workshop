@@ -8,17 +8,17 @@ import static edu.upc.talent.swqa.jdbc.Param.p;
 
 import java.util.List;
 
-public class PostgresQlUsersRepository implements UsersRepository {
+public class PostgreSqlUsersRepository implements UsersRepository {
 
   private final Database db;
 
-  public PostgresQlUsersRepository(final Database db) {
+  public PostgreSqlUsersRepository(final Database db) {
     this.db = db;
   }
 
   public List<User> getUsersByGroup(final String groupName) {
     return db.select(
-          "select u.id, u.name, u.surname, u.email, u.role " +
+          "select u.id, u.name, u.surname, u.email, u.role, u.created_at " +
           "from users u join groups g on u.group_id = g.id " +
           "where u.active and g.name = ?",
           (rs) -> new User(
@@ -27,7 +27,8 @@ public class PostgresQlUsersRepository implements UsersRepository {
                 rs.getString(3),
                 rs.getString(4),
                 rs.getString(5),
-                groupName
+                groupName,
+                rs.getInstant(6)
           ),
           p(groupName)
     );
